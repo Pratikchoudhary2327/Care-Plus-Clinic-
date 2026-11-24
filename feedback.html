@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Patient Feedback | CarePlus Clinic</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .feedback-form {
+            max-width: 750px;
+        }
+
+        .form-heading {
+            color: #087f8c;
+            border-bottom: 2px solid #eaf4fb;
+            padding-bottom: 10px;
+            margin-top: 28px;
+        }
+
+        .form-description {
+            color: #64748b;
+            font-size: 13px;
+            margin: 8px 0 15px;
+        }
+
+        .required {
+            color: #ef5274;
+        }
+
+        .rating-stars {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .rating-stars input {
+            display: none;
+        }
+
+        .rating-stars label {
+            font-size: 38px;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .rating-stars label:hover,
+        .rating-stars label:hover~label,
+        .rating-stars input:checked~label {
+            color: #f5b301;
+        }
+
+        .rating-stars input:focus-visible+label {
+            outline: 2px solid #087f8c;
+            outline-offset: 3px;
+        }
+
+        .rating-hint {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .form-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .form-actions button {
+            margin: 0;
+        }
+
+        .feedback-message {
+            margin-top: 18px;
+            font-weight: bold;
+            color: #087f8c;
+        }
+
+        @media (max-width: 500px) {
+            .rating-stars label {
+                font-size: 32px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .form-actions a,
+            .form-actions button {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="top-header">
+
+        <a class="logo" href="index.html">
+            ❤ CarePlus Clinic
+        </a>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="index.html#services">Our Services</a>
+            <a href="index.html#about">About Us</a>
+        </nav>
+
+    </header>
+
+    <main>
+
+        <section class="section feedback-section">
+
+            <h2>Patient Feedback Form</h2>
+
+            <p class="section-intro">
+                Your feedback helps us improve our clinic services.
+                Share your experience with us!
+            </p>
+
+            <form id="feedbackForm" class="feedback-form">
+
+                <!-- PATIENT INFORMATION -->
+
+                <h3 class="form-heading">
+                    1. Patient Information
+                </h3>
+
+                <p class="form-description">
+                    Please provide your information. You can also submit
+                    feedback anonymously.
+                </p>
+
+                <label for="patientName">
+                    Patient Name (Optional)
+                </label>
+
+                <input type="text" id="patientName" name="patientName" placeholder="Enter your name">
+
+                <label for="patientEmail">
+                    Email Address (Optional)
+                </label>
+
+                <input type="email" id="patientEmail" name="patientEmail" placeholder="Enter your email address">
+
+                <label for="anonymous">
+                    Anonymous Feedback?
+                </label>
+
+                <select id="anonymous" name="anonymous" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+
+                <label for="visitDate">
+                    Visit Date <span class="required">*</span>
+                </label>
+
+                <input type="date" id="visitDate" name="visitDate" required>
+
+                <label for="appointmentId">
+                    Visit / Appointment ID (Optional)
+                </label>
+
+                <input type="text" id="appointmentId" name="appointmentId" placeholder="Enter appointment ID">
+
+                <!-- SERVICE INFORMATION -->
+
+                <h3 class="form-heading">
+                    2. Service Information
+                </h3>
+
+                <label for="department">
+                    Select Department <span class="required">*</span>
+                </label>
+
+                <select id="department" name="department" required>
+
+                    <option value="">Choose a service</option>
+
+                    <option value="Doctor Consultation">
+                        Doctor Consultation
+                    </option>
+
+                    <option value="Nursing">
+                        Nursing Care
+                    </option>
+
+                    <option value="Reception">
+                        Reception
+                    </option>
+
+                    <option value="Billing">
+                        Billing Department
+                    </option>
+
+                    <option value="Cleanliness">
+                        Cleanliness
+                    </option>
+
+                    <option value="Waiting Time">
+                        Waiting Time
+                    </option>
+
+                </select>
+
+                <!-- STAR RATING -->
+
+                <h3 class="form-heading">
+                    3. Rate Your Experience
+                </h3>
+
+                <label>
+                    Overall Rating <span class="required">*</span>
+                </label>
+
+                <p class="form-description">
+                    Select one star to five stars based on your experience.
+                </p>
+
+                <div class="rating-stars">
+
+                    <input type="radio" id="star5" name="rating" value="5" required>
+                    <label for="star5" title="Excellent">★</label>
+
+                    <input type="radio" id="star4" name="rating" value="4">
+                    <label for="star4" title="Very Good">★</label>
+
+                    <input type="radio" id="star3" name="rating" value="3">
+                    <label for="star3" title="Good">★</label>
+
+                    <input type="radio" id="star2" name="rating" value="2">
+                    <label for="star2" title="Fair">★</label>
+
+                    <input type="radio" id="star1" name="rating" value="1">
+                    <label for="star1" title="Poor">★</label>
+
+                </div>
+
+                <p class="rating-hint">
+                    1 = Poor | 2 = Fair | 3 = Good |
+                    4 = Very Good | 5 = Excellent
+                </p>
+
+                <!-- COMMENTS -->
+
+                <h3 class="form-heading">
+                    4. Comments and Suggestions
+                </h3>
+
+                <label for="comments">
+                    Share Your Experience
+                    <span class="required">*</span>
+                </label>
+
+                <textarea id="comments" name="comments" rows="6" required
+                    placeholder="Tell us what you liked and what we can improve..."></textarea>
+
+                <!-- SUBMIT -->
+
+                <div class="form-actions">
+
+                    <button type="submit" class="primary-button">
+                        Submit Feedback
+                    </button>
+
+                    <a href="index.html" class="secondary-button">
+                        ← Back to Home
+                    </a>
+
+                </div>
+
+                <p id="message" class="feedback-message" role="status" aria-live="polite"></p>
+
+                <p id="feedbackId"></p>
+
+            </form>
+
+        </section>
+
+    </main>
+
+    <footer>
+
+        <p>© 2026 CarePlus Clinic Feedback Portal</p>
+
+        <p>Thank you for sharing your experience!</p>
+
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
