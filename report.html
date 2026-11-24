@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Analytics & Reports | CarePlus Clinic</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .report-section {
+            margin-top: 35px;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .report-table th,
+        .report-table td {
+            padding: 13px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .report-table th {
+            background: #eaf4fa;
+            color: #26354a;
+        }
+
+        .report-table tr:hover {
+            background: #f8fafd;
+        }
+
+        .report-bar {
+            height: 13px;
+            background: #e5e7eb;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .report-bar-fill {
+            height: 100%;
+            background: #e88ab5;
+            border-radius: 20px;
+        }
+
+        .report-insight {
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border-bottom: 3px solid #e88ab5;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .report-insight h3 {
+            margin-bottom: 12px;
+        }
+
+        .report-insight p {
+            overflow-wrap: anywhere;
+        }
+
+        .report-status {
+            font-weight: bold;
+        }
+
+        @media print {
+
+            .top-header nav,
+            .primary-button,
+            .back-link {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+            }
+
+            .section {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="top-header">
+        <a class="logo" href="index.html">❤ CarePlus Clinic</a>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="feedback.html">Feedback Form</a>
+            <a href="admin.html">Admin Dashboard</a>
+        </nav>
+    </header>
+
+    <main class="section">
+
+        <h2>Analytics & Reports</h2>
+
+        <p>Understand patient satisfaction across clinic services.</p>
+
+        <!-- Main statistics -->
+        <div class="service-grid">
+
+            <div class="service-card">
+                <h3>Total Responses</h3>
+                <p id="reportTotal">0</p>
+            </div>
+
+            <div class="service-card">
+                <h3>Overall Rating</h3>
+                <p id="reportAverage">0 / 5</p>
+            </div>
+
+            <div class="service-card">
+                <h3>Resolved Feedback</h3>
+                <p id="reportResolved">0</p>
+            </div>
+
+            <div class="service-card">
+                <h3>Pending Feedback</h3>
+                <p id="reportPending">0</p>
+            </div>
+
+        </div>
+
+        <!-- Service performance -->
+        <section class="report-section">
+
+            <h2>Service-wise Performance</h2>
+
+            <p id="reportEmpty">Loading report...</p>
+
+            <div style="overflow-x:auto;">
+
+                <table class="report-table">
+
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Responses</th>
+                            <th>Average Rating</th>
+                            <th>Performance</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="reportTableBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- Performance insights -->
+        <section class="report-section">
+
+            <h2>Performance Insights</h2>
+
+            <div class="service-grid" id="reportInsights"></div>
+
+        </section>
+
+        <!-- Rating distribution -->
+        <section class="report-section">
+
+            <h2>Rating Distribution</h2>
+
+            <div id="ratingDistribution"></div>
+
+        </section>
+
+        <br>
+
+        <button class="primary-button" id="printReport">
+            Print / Save Report
+        </button>
+
+        <p class="back-link">
+            <a href="admin.html">← Back to Admin Dashboard</a>
+        </p>
+
+    </main>
+
+    <footer>
+        <p>© 2026 CarePlus Clinic Feedback Portal</p>
+    </footer>
+
+    <script>
+        function loadReports() {
+
+            let feedback = [];
+
+            try {
+                feedback = JSON.parse(
+                    localStorage.getItem("clinicFeedback") || "[]"
+                );
+
+                if (!Array.isArray(feedback)) {
+                    feedback = [];
+                }
+
+            } catch (error) {
+                console.error("Feedback loading error:", error);
+            }
+
+            // Validate ratings
+            const validFeedback = feedback.filter(item => {
+                const rating = Number(item.rating);
+
+                return Number.isFinite(rating) &&
+                    rating >= 1 && rating <= 5;
+            });
+
+            // Total responses
+            document.getElementById("reportTotal").textContent =
+                feedback.length;
+
+            // Average rating
+            const average = validFeedback.length
+                ? (
+                    validFeedback.reduce(
+                        (sum, item) => sum + Number(item.rating), 0
+                    ) / validFeedback.length
+                ).toFixed(1)
+                : "0.0";
+
+            document.getElementById("reportAverage").textContent =
+                average + " / 5";
+
+            // Status summary
+            const resolved = feedback.filter(
+                item => item.status === "Resolved"
+            ).length;
+
+            const pending = feedback.length - resolved;
+
+            document.getElementById("reportResolved").textContent =
+                resolved;
+
+            document.getElementById("reportPending").textContent =
+                pending;
+
+            // Department names from actual feedback
+            const departments = [
+                ...new Set(
+                    feedback.map(item => item.department || "Other")
+                )
+            ];
+
+            const tableBody =
+                document.getElementById("reportTableBody");
+
+            tableBody.replaceChildren();
+
+            // No feedback message
+            if (feedback.length === 0) {
+
+                document.getElementById("reportEmpty").textContent =
+                    "No feedback available. Submit feedback to generate reports.";
+
+            } else {
+
+                document.getElementById("reportEmpty").textContent =
+                    "Report generated successfully from submitted feedback.";
+
+            }
+
+            // Department calculations
+            const departmentData = departments.map(department => {
+
+                const records = feedback.filter(
+                    item => (item.department || "Other") === department
+                );
+
+                const ratings = records
+                    .map(item => Number(item.rating))
+                    .filter(rating =>
+                        Number.isFinite(rating) &&
+                        rating >= 1 &&
+                        rating <= 5
+                    );
+
+                const departmentAverage = ratings.length
+                    ? ratings.reduce((sum, rating) => sum + rating, 0)
+                    / ratings.length
+                    : null;
+
+                let performance = "No Data";
+
+                if (departmentAverage !== null) {
+
+                    if (departmentAverage >= 4) {
+                        performance = "Excellent";
+                    } else if (departmentAverage >= 3) {
+                        performance = "Good";
+                    } else {
+                        performance = "Needs Improvement";
+                    }
+
+                }
+
+                return {
+                    department,
+                    count: records.length,
+                    average: departmentAverage,
+                    performance
+                };
+
+            });
+
+            // Create table rows
+            departmentData.forEach(item => {
+
+                const row = document.createElement("tr");
+
+                const values = [
+                    item.department,
+                    item.count,
+                    item.average === null
+                        ? "N/A"
+                        : item.average.toFixed(1) + " / 5",
+                    item.performance
+                ];
+
+                values.forEach((value, index) => {
+
+                    const cell = document.createElement("td");
+
+                    cell.textContent = value;
+
+                    if (index === 3) {
+                        cell.className = "report-status";
+
+                        if (value === "Excellent") {
+                            cell.style.color = "green";
+                        } else if (value === "Good") {
+                            cell.style.color = "#2563eb";
+                        } else if (value === "Needs Improvement") {
+                            cell.style.color = "#d9534f";
+                        }
+                    }
+
+                    row.appendChild(cell);
+
+                });
+
+                tableBody.appendChild(row);
+
+            });
+
+            // Performance insights
+            const insights =
+                document.getElementById("reportInsights");
+
+            insights.replaceChildren();
+
+            const ratedDepartments = departmentData.filter(
+                item => item.average !== null
+            );
+
+            const best = ratedDepartments.length
+                ? [...ratedDepartments].sort(
+                    (a, b) => b.average - a.average
+                )[0]
+                : null;
+
+            const lowest = ratedDepartments.length
+                ? [...ratedDepartments].sort(
+                    (a, b) => a.average - b.average
+                )[0]
+                : null;
+
+            const insightCards = [
+                {
+                    title: "Best Performing Department",
+                    value: best
+                        ? best.department + " (" +
+                        best.average.toFixed(1) + " / 5)"
+                        : "No data available"
+                },
+                {
+                    title: "Needs Improvement",
+                    value: lowest
+                        ? lowest.department + " (" +
+                        lowest.average.toFixed(1) + " / 5)"
+                        : "No data available"
+                },
+                {
+                    title: "Rated Responses",
+                    value: validFeedback.length
+                }
+            ];
+
+            insightCards.forEach(item => {
+
+                const card = document.createElement("div");
+                card.className = "report-insight";
+
+                const heading = document.createElement("h3");
+                heading.textContent = item.title;
+
+                const value = document.createElement("p");
+                value.textContent = item.value;
+
+                card.append(heading, value);
+                insights.appendChild(card);
+
+            });
+
+            // Rating distribution
+            const distribution =
+                document.getElementById("ratingDistribution");
+
+            distribution.replaceChildren();
+
+            for (let rating = 5; rating >= 1; rating--) {
+
+                const count = validFeedback.filter(
+                    item => Number(item.rating) === rating
+                ).length;
+
+                const percentage = validFeedback.length
+                    ? (count / validFeedback.length) * 100
+                    : 0;
+
+                const wrapper = document.createElement("div");
+                wrapper.style.margin = "16px 0";
+
+                const label = document.createElement("p");
+
+                label.textContent =
+                    rating + " Stars — " + count +
+                    " responses (" + percentage.toFixed(0) + "%)";
+
+                const bar = document.createElement("div");
+                bar.className = "report-bar";
+
+                const fill = document.createElement("div");
+                fill.className = "report-bar-fill";
+                fill.style.width = percentage + "%";
+
+                bar.appendChild(fill);
+                wrapper.append(label, bar);
+
+                distribution.appendChild(wrapper);
+
+            }
+
+        }
+
+        // Print report
+        document.getElementById("printReport")
+            .addEventListener("click", function () {
+                window.print();
+            });
+
+        // Load report
+        loadReports();
+
+    </script>
+
+</body>
+
+</html>
